@@ -2,14 +2,105 @@
 <html>
 <head>
   <title>GPS Tracker</title>
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <link rel="stylesheet" href="./styles/style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    nav {
+      background-color: #333;
+      color: white;
+      padding: 10px;
+      text-align: center;
+    }
+
+    #content {
+      padding: 20px;
+    }
+
+    #container {
+      display: flex;
+    }
+
+    #map {
+      height: 500px;
+      width: 70%;
+      margin-right: 20px;
+    }
+
+    #search {
+      width: 30%;
+    }
+
+    #search input {
+      width: calc(100% - 22px); /* Full width - padding and border */
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    #search select {
+      width: calc(100% - 22px); /* Full width - padding and border */
+      padding: 10px;
+    }
+  </style>
 </head>
 <body>
-  <div id="map" "></div>
-    <div>
-        <h1>ShuttleMe</h1>
-        <p>This is a paragrpah</p>
-        
+  <nav>
+    <h1 id="logo">ShuttleMe</h1>
+  </nav>
+  <div id="content">
+    <div id="container">
+      <div id="map"></div>
+      <div id="search">
+        <input type="text" id="locationSearch" placeholder="Search for a location">
+        <select id="locationDropdown" size="10">
+          <!-- Populate this with locations -->
+        </select>
+      </div>
     </div>
+  </div>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script>
+    let map;
+    let marker;
+
+    function initMap() {
+      map = L.map('map').setView([0, 0], 2);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19
+      }).addTo(map);
+
+      marker = L.marker([0, 0]).addTo(map);
+
+      fetch('/api/latest-gps-data')
+        .then(response => response.json())
+        .then(data => {
+          const { latitude, longitude } = data;
+          const latLng = [latitude, longitude];
+
+          map.setView(latLng, 13);
+          marker.setLatLng(latLng);
+        });
+
+      setInterval(updateMarker, 5000);
+    }
+
+    function updateMarker() {
+      fetch('/api/latest-gps-data')
+        .then(response => response.json())
+        .then(data => {
+          const { latitude, longitude } = data;
+          const latLng = [latitude, longitude];
+
+          map.setView(latLng, 13);
+          marker.setLatLng(latLng);
+        });
+    }
+
+    window.onload = initMap;
+  </script>
 </body>
 </html>
