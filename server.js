@@ -12,7 +12,15 @@ const port = process.env.PORT || 3000;    //Access environment variable port
 app.use(bodyParser.json());     //Parse incoming requests with json payload
 app.use(express.static('public'));    //Serve static pages in public
 
+
+//Connect to the MongoDB Connection
+try{
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });   //Connect with mongoDB, Options for new MongoDB Driver
+}
+catch(err){
+  console.log(`Error connecting to the database ${err}`);
+}
+
 
 app.use('/api', gpsDataRoutes);   //Use the gps api routes
 
